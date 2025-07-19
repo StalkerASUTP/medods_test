@@ -1,23 +1,21 @@
 package repository
 
 import (
-	"authentication-app/internal/config"
 	"authentication-app/storage/db"
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Repository struct {
 	db   *db.Queries
 	conn *pgx.Conn
-	conf *config.Config
 }
 
-func NewRepository(db *db.Queries, conn *pgx.Conn, conf *config.Config) *Repository {
-	return &Repository{db: db, conn: conn, conf: conf}
+func NewRepository(db *db.Queries, conn *pgx.Conn) *Repository {
+	return &Repository{db: db, conn: conn}
 }
 
 func (r *Repository) CreateUser(ctx context.Context, user *db.CreateUserParams) (*db.User, error) {
@@ -38,7 +36,7 @@ func (r *Repository) CreateUser(ctx context.Context, user *db.CreateUserParams) 
 	return &userNew, nil
 }
 
-func (r *Repository) DeactivateUser(ctx context.Context, id pgtype.UUID) error {
+func (r *Repository) DeactivateUser(ctx context.Context, userID uuid.UUID) error {
 	const op = "repository.DeactivateUser"
 	trx, err := r.conn.Begin(ctx)
 	if err != nil {
@@ -46,7 +44,7 @@ func (r *Repository) DeactivateUser(ctx context.Context, id pgtype.UUID) error {
 	}
 	defer trx.Rollback(ctx)
 	trns := r.db.WithTx(trx)
-	if err := trns.DeactivateUser(ctx, id); err != nil {
+	if err := trns.DeactivateUser(ctx, userID); err != nil {
 		return fmt.Errorf("%s: can't deactivate user: %w", op, err)
 	}
 	if err := trx.Commit(ctx); err != nil {
@@ -54,7 +52,7 @@ func (r *Repository) DeactivateUser(ctx context.Context, id pgtype.UUID) error {
 	}
 	return nil
 }
-func (r *Repository) GetUserByID(ctx context.Context, id pgtype.UUID) (*db.User, error) {
+func (r *Repository) GetUserByID(ctx context.Context, userID uuid.UUID) (*db.User, error) {
 	const op = "repository.GetUserByID"
 	trx, err := r.conn.Begin(ctx)
 	if err != nil {
@@ -62,7 +60,7 @@ func (r *Repository) GetUserByID(ctx context.Context, id pgtype.UUID) (*db.User,
 	}
 	defer trx.Rollback(ctx)
 	trns := r.db.WithTx(trx)
-	user, err := trns.GetUserByID(ctx, id)
+	user, err := trns.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: can't get user by id: %w", op, err)
 	}

@@ -5,16 +5,17 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type User struct {
-	ID                    pgtype.UUID
-	RefreshTokenHash      pgtype.Text
+	ID                    uuid.UUID
+	RefreshTokenHash      string
 	RefreshTokenExpiresAt pgtype.Timestamp
-	UserAgent             pgtype.Text
-	IpAddress             pgtype.Text
-	IsActive              pgtype.Bool
+	UserAgent             string
+	IpAddress             string
+	IsActive              bool
 	CreatedAt             pgtype.Timestamp
 	UpdatedAt             pgtype.Timestamp
 }

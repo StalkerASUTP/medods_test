@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -26,12 +27,12 @@ RETURNING id, refresh_token_hash, refresh_token_expires_at, user_agent, ip_addre
 `
 
 type CreateUserParams struct {
-	ID                    pgtype.UUID
-	RefreshTokenHash      pgtype.Text
+	ID                    uuid.UUID
+	RefreshTokenHash      string
 	RefreshTokenExpiresAt pgtype.Timestamp
-	UserAgent             pgtype.Text
-	IpAddress             pgtype.Text
-	IsActive              pgtype.Bool
+	UserAgent             string
+	IpAddress             string
+	IsActive              bool
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -63,7 +64,7 @@ SET is_active = FALSE
 WHERE id = $1
 `
 
-func (q *Queries) DeactivateUser(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeactivateUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deactivateUser, id)
 	return err
 }
@@ -73,7 +74,7 @@ SELECT id, refresh_token_hash, refresh_token_expires_at, user_agent, ip_address,
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
@@ -98,8 +99,8 @@ RETURNING id, refresh_token_hash, refresh_token_expires_at, user_agent, ip_addre
 `
 
 type UpdateTokenParams struct {
-	ID                    pgtype.UUID
-	RefreshTokenHash      pgtype.Text
+	ID                    uuid.UUID
+	RefreshTokenHash      string
 	RefreshTokenExpiresAt pgtype.Timestamp
 }
 

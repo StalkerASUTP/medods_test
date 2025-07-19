@@ -13,13 +13,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
-  auth-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - 8080:8080
-    depends_on:
-      - postgres
+  # auth-service:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     - postgres
 volumes:
   postgres_data:
